@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>lector c</title>
+</head>
+<style>
+    #contenido{
+        border: 1px solid;
+        padding-left: 10px;
+        width:60%;
+        height: auto;
+    }
+</style>
+<body>
+    Seleccione el archivo de texto: 
+    <input type="file" id="archivoTexto">
+    <hr>
+    <p id="contenido" ></p>
+
+    <p id="mensajes"></p>
+
+    <script>
+        let imprimir = "";
+        let i=0;
+        let j=0;
+        let bandera = 1 ;
+        let aux = "";
+
+        function esOperador(letra){
+            let j=0;
+            let operadores = ["+","-","*","/","%","=",";","#","<",">","{","}","[","]","(",")"," "];
+            for(j= 0; j <operadores.length ; j++) {
+                if(letra == operadores[j]) { 
+                    return true;                           
+                }            
+            }
+            return false;
+        }
+
+        function esPalabra(letra){
+            let j=0;
+            let cmasmas = ["asm","auto","bool","break","case","catch","char","class","const","const_cast",
+        "continue","default","delete","do","double","dynamic_cast","else","enum","explicit","extern","false",
+        "float","for","friend","goto","if","inline","int","long","iostream", "mutable","namespace","new","operator",
+        "private","protected","public","register","reinterpret_cast","return","short","signed","sizeof",	
+        "static","static_cast","struct","std","switch","template","this","throw","true","try","typedef","typeid",	
+        "typename","union","unsigned","using","virtual","void","volatile","while","+","-","*","/","%","&","#",
+        "<",">","!","endl","{","}","[","]","(",")","cout","cin"]; 
+            for(j= 0; j <cmasmas.length ; j++) {
+                if(letra == cmasmas[j]) { 
+                    return true;                           
+                }            
+            }
+            return false;
+        }
+
+        function escribir1(texto){
+            if(bandera == 1){
+                imprimir = imprimir + "\n";
+                imprimir = imprimir + texto;
+                imprimir = imprimir + "\n";
+            }
+        }
+
+        function escribir2(texto){
+            if(bandera == 1){
+                imprimir = imprimir + texto;
+                imprimir = imprimir + "\n";
+            }
+        }
+
+        function abrirArchivo(evento){
+            let archivo = evento.target.files[0];
+
+            if (archivo){
+                let reader = new FileReader();
+
+                reader.onload = function(e) {
+                    let contenido = e.target.result;
+                    let lineas = contenido.split("\n");
+                    for (i= 0; i < lineas.length; i++) {
+                        let palabras = lineas[i].split(" ");
+                        console.log(palabras);
+                        
+                            for(j= 0; j <palabras.length; j++) {
+                                let palabra = palabras[j];
+                                if (esPalabra(palabra)){
+                                    escribir1(palabra);
+                                }else{                          
+                                    for(k= 0; k < palabra.length; k++){
+                                        if(palabra[k]=="/" && palabra[k+1]=="/"){
+                                            console.log("primer condicional");
+                                            j = palabras.length;
+                                            break;
+                                        }
+                                        if(palabra[k]=="/" && palabra[k+1]=="*"){
+                                            bandera = 0;
+                                            console.log(bandera);
+                                        }
+                                        if(palabra[k]=="*" && palabra[k+1]=="/"){
+                                            k = k+2;
+                                            bandera = 1;
+                                            console.log(bandera);
+                                        }                
+                                        if(esOperador(palabra[k]) && esOperador(palabra[k+1])){
+                                            aux = palabra[k] + palabra[k+1];
+                                            escribir1(aux);
+                                            k=k+1;
+                                            console.log("segundo condicional");
+                                        }else{
+                                                if((esOperador(palabra[k])) && !(esOperador(palabra[k+1])) ){
+                                                escribir1(palabra[k]);
+                                                console.log("tercer condicional");
+                                                }else{
+                                                    if(!(esOperador(palabra[k])) && (esOperador(palabra[k+1])) ){
+                                                        escribir2(palabra[k]);
+                                                        console.log("cuarto condicional");
+                                                    }else{
+                                                        if(bandera == 1){
+                                                            imprimir = imprimir + palabra[k];
+                                                            console.log("quinto condicional")
+                                                        }
+                                                    }
+                                                }
+                                        }                                                                                
+                                    }
+                                }
+                        }
+                    }        
+
+                    document.getElementById('contenido').innerText = imprimir;
+
+                };
+
+                reader.readAsText(archivo);
+            } else {
+                document.getElementById('mensajes').innerText = 'No se ha seleccionado un archivo.';
+            }
+        }
+
+        window.addEventListener('load', () => {
+            document.getElementById('archivoTexto').addEventListener('change', abrirArchivo);
+        });
+
+    </script>
+</body>
+</html>
+
+
